@@ -12,6 +12,16 @@ export const player = {
   },
 }
 
+export const powerUp = {
+  circle: {
+    x: 0,
+    y: 0,
+    r: playerSize / 2,
+    color: 'yellow',
+    power: 3
+  }
+}
+
 export const gameState = {
   isRunning: true,
 }

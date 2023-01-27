@@ -13,6 +13,14 @@ function drawText(text: TextObj) {
   context.fillText(text.text, text.x, text.y)
 }
 
+
+function drawCircle(circle: Circle) {
+  let c = new Path2D(); 
+  c.arc(circle.x, circle.y, circle.r, 0, 2 * Math.PI, false);
+  context.fillStyle = circle.color
+  context.fill(c); 
+}
+
 let lastRender = 0
 
 export function render() {
@@ -27,8 +35,13 @@ export function render() {
     if (entity.rect) {
       drawRect(entity.rect)
     }
+    
     if (entity.text) {
       drawText(entity.text)
+    }
+
+    if (entity.circle) {
+      drawCircle(entity.circle)
     }
   }
   drawText({

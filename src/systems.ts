@@ -1,6 +1,6 @@
 import { worldHeight, worldWidth } from './context'
 import { pressedKeys } from './input'
-import { entities, gameState, player, scoreBoard } from './state'
+import { entities, gameState, player, powerUp, scoreBoard } from './state'
 import { getRandomColor } from './utils'
 
 export function setup() {
@@ -9,6 +9,10 @@ export function setup() {
   player.rect.y = (worldHeight - player.rect.height) / 2
   scoreBoard.score = 0
   entities.push(player)
+  let [x, y] = getRandomPosition()
+  powerUp.circle.x = x
+  powerUp.circle.y = y
+  entities.push(powerUp)
   entities.push(scoreBoard)
   pressedKeys.clear()
   gameState.isRunning = true
@@ -37,8 +41,35 @@ export function checkCollisions() {
           },
         })
       }
+    } else if (entity.circle) {
+      if (checkCollision(entity.circle, player.rect)) {
+        scoreBoard.score += powerUp.circle.power * 100
+        let [x, y] = getRandomPosition()
+        powerUp.circle.x = x
+        powerUp.circle.y = y
+        player.rect.width = player.rect.width - powerUp.circle.power
+        player.rect.height = player.rect.height - powerUp.circle.power
+      }
     }
   }
+}
+
+function checkCollision(circle: Circle, rect: Rect) {
+  // Closest point on rect to circle
+  let closestX = clamp(circle.x, rect.x, rect.x + rect.width);
+  let closestY = clamp(circle.y, rect.y, rect.y + rect.height);
+
+  // Calculate distance between circle center and closest point
+  let distanceX = circle.x - closestX;
+  let distanceY = circle.y - closestY;
+  let distanceSquared = distanceX * distanceX + distanceY * distanceY;
+
+  // Check if the distance is less than the circle's radius
+  return distanceSquared < circle.r * circle.r;
+}
+
+function clamp(val: number, min: number, max: number) {
+  return Math.max(min, Math.min(val, max));
 }
 
 export function incrementScore() {
@@ -65,15 +96,7 @@ export function spawnCubes() {
     lastSpawn = now
     const cubeSize = 32
     // Make sure the cube doesn't spawn too close to the player
-    let x = Math.random() * worldWidth
-    let y = Math.random() * worldHeight
-    while (
-      Math.abs(x - player.rect.x) < 100 &&
-      Math.abs(y - player.rect.y) < 100
-    ) {
-      x = Math.random() * worldWidth
-      y = Math.random() * worldHeight
-    }
+    let [x, y] = getRandomPosition()
     const cube = {
       velocity: {
         x: Math.random() * 2 - 1,
@@ -90,6 +113,19 @@ export function spawnCubes() {
 
     entities.push(cube)
   }
+}
+
+function getRandomPosition() {
+  let x = Math.random() * worldWidth
+  let y = Math.random() * worldHeight
+  while (
+    Math.abs(x - player.rect.x) < 100 &&
+    Math.abs(y - player.rect.y) < 100
+  ) {
+    x = Math.random() * worldWidth
+    y = Math.random() * worldHeight
+  }
+  return [x, y]
 }
 
 export function wrapEntities() {

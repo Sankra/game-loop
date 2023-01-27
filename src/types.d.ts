@@ -12,3 +12,10 @@ type TextObj = {
   text: string
   color: string
 }
+
+type Circle = {
+  x: number
+  y: number
+  r: number
+  color: string
+}
